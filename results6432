@@ -1,0 +1,7 @@
+Number of users: 6038, Number of items: 3533
+Training set size: 402696
+Validation set size: 86292
+Test set size: 86293
+
+Recall@10: 0.05341232290643928
+NDCG@10: 0.06288727489306278
