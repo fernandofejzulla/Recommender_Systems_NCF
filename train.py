@@ -52,7 +52,8 @@ def validate(model, dataloader, criterion, device):
 
 #training loop
 #early stopping for tracking the best validation loss
-def train_model(model, train_dataset, val_dataset, epochs=20, batch_size=256, learning_rate=0.001, patience=3, device="cpu"):
+def train_model(model, train_dataset, val_dataset, epochs=20, batch_size=256, learning_rate=0.001, 
+                patience=3, device="cpu", mlp_layers=None):
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size)
 
@@ -64,6 +65,10 @@ def train_model(model, train_dataset, val_dataset, epochs=20, batch_size=256, le
 
     best_val_loss = float("inf")
     patience_counter = 0
+
+    layer_str = str(mlp_layers) if mlp_layers is not None else "model"
+    model_filename = f"best_model_{layer_str}.pth"
+    plot_filename  = f"loss_curve_{layer_str}.png"
 
     model.to(device)
 
@@ -83,7 +88,7 @@ def train_model(model, train_dataset, val_dataset, epochs=20, batch_size=256, le
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             patience_counter = 0
-            torch.save(model.state_dict(), "best_model_[128_64_32].pth")
+            torch.save(model.state_dict(), model_filename)
         else:
             patience_counter += 1
 
@@ -97,7 +102,7 @@ def train_model(model, train_dataset, val_dataset, epochs=20, batch_size=256, le
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.title("Training vs Validation Loss")
-    plt.savefig("loss_curve_[128_64_32].png")
+    plt.savefig(plot_filename)
 
     print("Training done!!")
 

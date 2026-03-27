@@ -24,11 +24,13 @@ def ndcg_k(recommended_items, ground_truth, k):
     return dcg / idcg if idcg > 0 else 0
 
 #ranking evaluation
-def evaluate_model(model, test_df, num_items, device, k=10):
+def evaluate_model(model, test_df, train_df, num_items, device, k=10):
     
     model.eval()
     recall_scores = []
     ndcg_scores = []
+
+    train_items_per_user = train_df.groupby("user")["item"].apply(set).to_dict()
 
     users = test_df["user"].unique()
 
@@ -44,6 +46,12 @@ def evaluate_model(model, test_df, num_items, device, k=10):
 
             scores = model(user_tensor, item_tensor)
             scores = scores.cpu().numpy()
+
+            # Mask out training items by pushing their scores to -inf so they
+            # are sorted to the bottom and never appear in the top-k results.
+            train_items = train_items_per_user.get(user, set())
+            for item_idx in train_items:
+                scores[item_idx] = -np.inf
 
             ranked_items = np.argsort(scores)[::-1]
 

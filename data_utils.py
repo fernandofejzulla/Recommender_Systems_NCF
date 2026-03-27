@@ -60,8 +60,11 @@ def split_data(df, train_ratio=0.7, val_ratio=0.15): #random train/val/test spli
 
     return train_df, val_df, test_df
 
-def negative_sampling(df, num_items, num_negatives=4): #sample negatives for each interaction
-    user_item_set = set(zip(df["user"], df["item"]))
+def negative_sampling(df, num_items, all_positive_pairs,num_negatives=4): #sample negatives for each interaction (1:4 ratio)
+    
+    # Use the all the positive pair sets to avoid sampling any known positive
+    # interaction as a negative, even if it belongs to a different split.
+    user_item_set = all_positive_pairs
 
     users = []
     items = []
